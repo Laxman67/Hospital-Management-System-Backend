@@ -25,6 +25,6 @@ userRouter.get('/admin/me', isAdminAuthenticated, getUserDetails);
 userRouter.get('/patient/me', isPatientAuthenticated, getUserDetails);
 userRouter.get('/admin/logout', isAdminAuthenticated, logoutAdmin);
 userRouter.get('/patient/logout', isPatientAuthenticated, logoutPatient);
-userRouter.post('/doctor/register', addNewDoctor);
+userRouter.post('/doctor/register', isAdminAuthenticated, addNewDoctor);
 
 export default userRouter;

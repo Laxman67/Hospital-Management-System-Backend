@@ -1,9 +1,7 @@
-import { model, Schema } from 'mongoose';
+import mongoose, { model, Schema } from 'mongoose';
 import validator from 'validator';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
-const userSchema = new Schema({
+const appointmentSchema = new Schema({
   firstName: {
     type: String,
     required: true,
@@ -40,45 +38,48 @@ const userSchema = new Schema({
     required: true,
     enum: ['Male', 'Female', 'Others'],
   },
-  password: {
-    type: String,
-    minLength: [8, 'Password must contain atleast 8 Characters '],
-    required: true,
-    select: false, // by default it will not fetch when user is fetched
-  },
-  role: {
+  appointment_date: {
     type: String,
     required: true,
-    enum: ['Admin', 'Patient', 'Doctor'],
   },
-  // Special For Doctors User
-  doctorDepartment: {
+  department: {
     type: String,
+    required: true,
   },
-  docAvatar: {
-    public_id: String,
-    url: String,
+  doctor: {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+  },
+
+  hasVisited: {
+    type: Boolean,
+    default: false,
+  },
+  doctorId: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+  },
+  patientId: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['Pending', 'Accepted', 'Rejected'],
+    default: 'Pending',
   },
 });
 
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) {
-    next();
-  }
-  this.password = await bcrypt.hash(this.password, 10);
-});
+const Appointment = model('Appointment', appointmentSchema);
 
-userSchema.methods.comparePassword = async function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
-};
-
-// Generating JSON Web Token
-userSchema.methods.generateJsonWebToken = function () {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES,
-  });
-};
-
-const User = model('User', userSchema);
-
-export default User;
+export default Appointment;

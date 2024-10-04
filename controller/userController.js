@@ -2,6 +2,7 @@ import catchAsyncErrors from '../middleware/catchAsyncError.js';
 import { ErrorHandler } from '../middleware/errorHandler.js';
 import User from '../models/userSchema.js';
 import { generateToken } from '../utils/jwtToken.js';
+import cloudinary from 'cloudinary';
 
 export const patientRegister = catchAsyncErrors(async (req, res, next) => {
   const {
@@ -179,17 +180,92 @@ export const logoutPatient = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const addNewDoctor = catchAsyncErrors(async (req, res, next) => {
+  // Check for the file
   if (!req.files || Object.keys(req.files).length === 0) {
     return next(new ErrorHandler('Doctor Avatar Required'), 400);
   }
 
+  // get the file with docAvatar name field
   const { docAvatar } = req.files;
 
+  // Type of file mimetype to accept
   const allowedFormats = ['image/png', 'image/jpeg', 'image/webp'];
 
   if (!allowedFormats.includes(docAvatar.mimetype)) {
-    return next(new ErrorHandler('File format not supported'), 400);
+    return next(new ErrorHandler('File Format Not Supported'), 400);
   }
 
-  const {} = req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    nic,
+    dob,
+    gender,
+    password,
+    doctorDepartment,
+  } = req.body;
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone ||
+    !nic ||
+    !dob ||
+    !gender ||
+    !password ||
+    !doctorDepartment
+  ) {
+    return next(new ErrorHandler('Provide All Fields'), 400);
+  }
+
+  const isRegistered = await User.findOne({ email });
+
+  if (isRegistered) {
+    return next(
+      new ErrorHandler(
+        `${isRegistered.role} With This Email id Already Exists`
+      ),
+      400
+    );
+  }
+
+  // Upload docAvatar to cloudinary
+  let cloudinaryResponse;
+
+  try {
+    cloudinaryResponse = await cloudinary.uploader.upload(
+      docAvatar.tempFilePath,
+      { folder: 'DOCTORS' }
+    );
+  } catch (error) {
+    return next(
+      new ErrorHandler('Failed to Upload docAvatar  to Cloudinary', 500)
+    );
+  }
+
+  const doctor = await User.create({
+    firstName,
+    lastName,
+    email,
+    phone,
+    nic,
+    dob,
+    gender,
+    password,
+    role: 'Doctor',
+    doctorDepartment,
+    docAvatar: {
+      public_id: cloudinaryResponse.public_id,
+      url: cloudinaryResponse.secure_url,
+    },
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Doctor Registered Successfully',
+    doctor,
+  });
 });
