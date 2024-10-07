@@ -171,7 +171,6 @@ export const logoutPatient = catchAsyncErrors(async (req, res, next) => {
     .cookie('patientToken', '', {
       expires: new Date(Date.now()),
       httpOnly: true,
-      sameSite: 'none',
     })
     .json({
       success: true,
