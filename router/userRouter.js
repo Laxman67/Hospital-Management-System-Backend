@@ -20,7 +20,7 @@ const userRouter = express.Router();
 userRouter.post('/patient/register', patientRegister);
 userRouter.post('/login', login);
 userRouter.post('/admin/register', isAdminAuthenticated, addNewAdmin);
-userRouter.get('/doctors', isAdminAuthenticated, getAllDoctors);
+userRouter.get('/doctors', getAllDoctors);
 userRouter.get('/admin/me', isAdminAuthenticated, getUserDetails);
 userRouter.get('/patient/me', isPatientAuthenticated, getUserDetails);
 userRouter.get('/admin/logout', isAdminAuthenticated, logoutAdmin);
