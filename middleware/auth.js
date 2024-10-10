@@ -27,6 +27,7 @@ export const isAdminAuthenticated = catchAsyncErrors(async (req, res, next) => {
   //   if all conditions match -> Admin is Requesting
   next();
 });
+
 export const isPatientAuthenticated = catchAsyncErrors(
   async (req, res, next) => {
     // get cookies with 'adminToken':"xyz...." name
