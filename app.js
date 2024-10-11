@@ -19,7 +19,7 @@ config({
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    origin: ['https://hospital-management-system-frontend-4b34.onrender.com','https://hospital-management-system-dashboard-n329.onrender.com'],
     // origin: ['http://localhost:5173', process.env.DASHBOARD_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
