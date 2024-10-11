@@ -8,7 +8,9 @@ export const generateToken = (user, message, statusCode, res) => {
       expires: new Date(
         Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000
       ),
-      httpOnly: true,
+      sameSite: 'none',
+  secure: true, // Ensures it's only sent over HTTPS
+  httpOnly: true, // Prevents JavaScript access to the cookie
 
     })
     .json({
